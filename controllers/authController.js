@@ -2,47 +2,62 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-exports.register = async (req, res) => {
+const register = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password, avatar } = req.body;
 
+    // Check if the email is already registered
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({
+    // Create a new user
+    const newUser = new User({
       username,
+      email,
       password: hashedPassword,
+      avatar,
     });
 
-    await user.save();
+    await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(200).json({ message: 'Registration successful' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred' });
   }
 };
 
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    const user = await User.findOne({ username });
+    // Find the user by email
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    // Compare the entered password with the stored hashed password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!passwordMatch) {
+    if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // Generate a JWT token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
-    res.status(200).json({ token });
+    res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred' });
   }
 };
+
+module.exports = { register, login };

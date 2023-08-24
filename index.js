@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const port = process.env.PORT || 3001;
+const cors = require('cors');
+
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -13,6 +15,8 @@ const authController = require('./controllers/authController');
 const authRoutes = require('./routes/authRoutes');
 const middlewareRoutes = require('./routes/middlewareRoutes');
 const blogRoutes = require('./routes/blogRoutes');
+
+app.use(cors());
 
 app.use(express.json());
 
