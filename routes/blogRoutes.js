@@ -3,7 +3,7 @@ const router = express.Router();
 const blogController = require('../controllers/blogController');
 const verifyToken = require('../middleware/authMiddleware');
 
-router.get('/blogs', verifyToken, blogController.getAllBlogs);
+router.get('/blogs',verifyToken, blogController.getAllBlogs);
 router.get('/blogs/search', verifyToken, blogController.searchBlogsByTitle);
 router.get('/blogs/filter', verifyToken, blogController.filterBlogsByCategory);
 router.get('/blogs/sort', verifyToken, blogController.sortBlogsByDate);

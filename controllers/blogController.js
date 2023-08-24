@@ -4,6 +4,7 @@ exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find().populate('author', 'username');
     res.status(200).json({ blogs });
+    console.log(blogs)
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An error occurred' });
